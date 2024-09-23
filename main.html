@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beer Decidotron 3000</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        /* Add styles for the voting sidebar */
+        #voting-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        #voting-sidebar h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        #voting-sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #voting-sidebar ul li {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Add styles for the user-submitted beers sidebar */
+        #user-submitted-sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        #user-submitted-sidebar h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        #user-submitted-sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #user-submitted-sidebar ul li {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #main-content {
+            margin-left: 320px;
+            /* Adjust main content margin to accommodate voting sidebar */
+            margin-right: 320px;
+            /* Adjust main content margin to accommodate user-submitted sidebar */
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Beer Decidotron 3000</h1>
+    </header>
+    <div id="voting-sidebar">
+        <h2>Vote for Best Beer in the Netherlands</h2>
+        <ul id="voting-list">
+            <!-- Voting list will be populated here -->
+        </ul>
+        <div id="total-votes">Total Votes: 0</div>
+    </div>
+    <div id="user-submitted-sidebar">
+        <h2>User Submitted Beers</h2>
+        <ul id="user-submitted-list">
+            <!-- User submitted beers will be populated here -->
+        </ul>
+        <input type="text" id="beer-input" placeholder="Enter beer name" />
+        <button id="submit-beer-button">Submit</button>
+    </div>
+    <main>
+        <p id="main-content">Can't decide? Leave it up to alex! (His soul is in the code)</p>
+        <div id="roulette-wheel">Roulette</div>
+        <button id="roulette-button">Spin the Roulette</button>
+        <button id="drink-button">Drink Beer</button>
+        <button id="alex-mode-button">Alex Mode</button>
+
+        <!-- Embedded Leaflet Map -->
+        <h2>Nearby Bars</h2>
+        <div id="map" style="width: 600px; height: 450px;"></div>
+    </main>
+    <footer>
+        <p>&copy; <span id="year"></span> The Beer Decider Project. All rights reserved.</p>
+    </footer>
+
+    <!-- Modal Structure -->
+    <div id="modal" class="modal">
+        <span id="close-modal" class="close">&times;</span>
+        <img id="modal-image" class="modal-content">
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="spin-sound" src="sounds/spin.mp3"></audio>
+    <audio id="drink-sound" src="sounds/drink.mp3"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = 'Can\'t decide? Leave it up to alex! (His soul is in the code)';
+
+            const yearSpan = document.getElementById('year');
+            yearSpan.textContent = new Date().getFullYear();
+
+            const rouletteButton = document.getElementById('roulette-button');
+            const drinkButton = document.getElementById('drink-button');
+            const alexModeButton = document.getElementById('alex-mode-button');
+            const spinSound = document.getElementById('spin-sound');
+            const drinkSound = document.getElementById('drink-sound');
+
+            // Create an AudioContext
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Preload the audio files
+            spinSound.load();
+            drinkSound.load();
+
+            const images = [
+                'images/image1.jpg',
+                'images/image2.jpg',
+                'images/image3.jpg',
+                'images/image4.jpg',
+                'images/image5.jpg',
+                'images/image6.jpg',
+                'images/image7.jpg',
+                'images/image8.jpg',
+                'images/image9.jpg',
+                'images/image10.jpg'
+            ];
+
+            rouletteButton.addEventListener('click', function () {
+                // Resume the AudioContext
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                const number = Math.floor(Math.random() * images.length);
+                const rouletteWheel = document.getElementById('roulette-wheel');
+                rouletteWheel.classList.add('spin');
+                spinSound.play().catch(error => console.log('Spin sound play error:', error));
+
+                setTimeout(() => {
+                    rouletteWheel.classList.remove('spin');
+                    rouletteWheel.style.backgroundImage = `url(${images[number]})`;
+                    const modal = document.getElementById('modal');
+                    const modalImage = document.getElementById('modal-image');
+                    modalImage.src = images[number];
+                    modal.style.display = 'block';
+                }, 2000);
+            });
+
+            drinkButton.addEventListener('click', function () {
+                // Resume the AudioContext
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+
+                document.body.classList.add('dizzy');
+                drinkSound.play().catch(error => console.log('Drink sound play error:', error));
+                setTimeout(() => {
+                    document.body.classList.remove('dizzy');
+                }, 5000); // Dizzy effect lasts for 5 seconds
+            });
+
+            alexModeButton.addEventListener('click', function () {
+                document.body.classList.toggle('alex-mode');
+                if (document.body.classList.contains('alex-mode')) {
+                    mainContent.style.display = 'none';
+                } else {
+                    mainContent.style.display = 'block';
+                }
+            });
+
+            const closeModal = document.getElementById('close-modal');
+            closeModal.addEventListener('click', function () {
+                const modal = document.getElementById('modal');
+                modal.style.display = 'none';
+            });
+
+            // Initialize the map
+            const map = L.map('map').setView([51.4416, 5.4697], 13); // Centered on Eindhoven
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Custom icon for bars
+            const barIcon = L.icon({
+                iconUrl: 'images/bar-icon.png', // Path to your custom icon image
+                iconSize: [32, 32], // Size of the icon
+                iconAnchor: [16, 32], // Point of the icon which will correspond to marker's location
+                popupAnchor: [0, -32] // Point from which the popup should open relative to the iconAnchor
+            });
+
+            // List of bars in Eindhoven
+            const bars = [
+                { name: 'Café Wilhelmina', lat: 51.4372, lng: 5.4781 },
+                { name: 'The Little One Bar', lat: 51.4384, lng: 5.4795 },
+                { name: 'Café de Groot', lat: 51.4391, lng: 5.4802 },
+                { name: 'Café Thomas', lat: 51.4380, lng: 5.4800 },
+                { name: 'De Gaper', lat: 51.4385, lng: 5.4790 },
+                { name: 'Café Bar \'t Lempke', lat: 51.4382, lng: 5.4798 },
+                { name: 'O’Sheas Irish Pub', lat: 51.4383, lng: 5.4796 },
+                { name: 'Café Spijker', lat: 51.4386, lng: 5.4793 },
+                { name: 'Café Altstadt', lat: 51.4379, lng: 5.4789 },
+                { name: 'Café Kraaij en Balder', lat: 51.4381, lng: 5.4797 },
+                { name: 'Hubble Bar TU/e', lat: 51.4484, lng: 5.4903 } // Added Hubble Bar TU/e
+            ];
+
+            bars.forEach(bar => {
+                console.log(`Adding marker for ${bar.name} at (${bar.lat}, ${bar.lng})`);
+                L.marker([bar.lat, bar.lng], { icon: barIcon }).addTo(map)
+                        .bindPopup(`<b>${bar.name}</b>`)
+                    .openPopup();
+            });
+
+            console.log('Map and markers initialized successfully.');
+
+            // List of most popular beers in the Netherlands
+            const popularBeers = [
+                'Heineken',
+                'Amstel',
+                'Grolsch',
+                'Hertog Jan',
+                'Brand',
+                'La Trappe',
+                'Bavaria',
+                'Jupiler',
+                'Palm',
+                'Affligem'
+            ];
+
+            // Initialize votes for popular beers
+            const votes = {};
+            popularBeers.forEach(beer => {
+                if (!votes[beer]) {
+                    votes[beer] = 0;
+                }
+            });
+
+            // Populate the voting sidebar with popular beers
+            const votingList = document.getElementById('voting-list');
+            const userSubmittedList = document.getElementById('user-submitted-list');
+            const totalVotesElement = document.getElementById('total-votes');
+
+            function updateVotes() {
+                votingList.innerHTML = '';
+                userSubmittedList.innerHTML = '';
+
+                let totalVotes = 0;
+
+                // Update popular beers list
+                popularBeers.forEach(beer => {
+                    const li = document.createElement('li');
+                    li.textContent = `${beer} - ${votes[beer]} votes`;
+                    const voteButton = document.createElement('button');
+                    voteButton.textContent = 'Vote';
+                    voteButton.addEventListener('click', () => {
+                        votes[beer]++;
+                        updateVotes();
+                    });
+                    li.appendChild(voteButton);
+                    votingList.appendChild(li);
+                    totalVotes += votes[beer];
+                });
+
+                // Update user-submitted beers list
+                for (const beer in votes) {
+                    if (!popularBeers.includes(beer)) {
+                        const li = document.createElement('li');
+                        li.textContent = `${beer} - ${votes[beer]} votes`;
+                        const voteButton = document.createElement('button');
+                        voteButton.textContent = 'Vote';
+                        voteButton.addEventListener('click', () => {
+                            votes[beer]++;
+                            updateVotes();
+                        });
+                        li.appendChild(voteButton);
+                        userSubmittedList.appendChild(li);
+                        totalVotes += votes[beer];
+                    }
+                }
+
+                totalVotesElement.textContent = `Total Votes: ${totalVotes}`;
+            }
+
+            // Handle user-submitted beers
+            const beerInput = document.getElementById('beer-input');
+            const submitBeerButton = document.getElementById('submit-beer-button');
+
+            submitBeerButton.addEventListener('click', () => {
+                const beerName = beerInput.value.trim();
+                if (beerName && !votes[beerName]) {
+                    votes[beerName] = 0;
+                    updateVotes();
+                }
+                beerInput.value = '';
+            });
+
+            // Initialize the voting list with popular beers
+            updateVotes();
+        });
+                        </script>
+    </body>
+    
+    </html>
