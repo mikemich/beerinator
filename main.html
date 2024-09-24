@@ -75,6 +75,12 @@
             margin-right: 320px;
             /* Adjust main content margin to accommodate user-submitted sidebar */
         }
+
+        /* Add styles for the map */
+        #map {
+            margin-top: 20px;
+            /* Add some margin to separate the map from the banner */
+        }
     </style>
 </head>
 
@@ -144,12 +150,16 @@
             drinkSound.load();
 
             const images = [
-                'images/beer1.jpg',
-                'images/beer2.jpg',
-                'images/beer3.jpg',
-                'images/beer4.jpg',
-                'images/beer5.jpg',
-                'images/beer6.jpg'
+                'images/image1.jpg',
+                'images/image2.jpg',
+                'images/image3.jpg',
+                'images/image4.jpg',
+                'images/image5.jpg',
+                'images/image6.jpg',
+                'images/image7.jpg',
+                'images/image8.jpg',
+                'images/image9.jpg',
+                'images/image10.jpg'
             ];
 
             rouletteButton.addEventListener('click', function () {
@@ -234,7 +244,7 @@
             bars.forEach(bar => {
                 console.log(`Adding marker for ${bar.name} at (${bar.lat}, ${bar.lng})`);
                 L.marker([bar.lat, bar.lng], { icon: barIcon }).addTo(map)
-                        .bindPopup(`<b>${bar.name}</b>`)
+                    .bindPopup(`<b>${bar.name}</b>`)
                     .openPopup();
             });
 
@@ -324,7 +334,7 @@
             // Initialize the voting list with popular beers
             updateVotes();
         });
-                        </script>
-    </body>
-    
-    </html>
+    </script>
+</body>
+
+</html>
