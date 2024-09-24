@@ -110,9 +110,7 @@
         <button id="drink-button">Drink Beer</button>
         <button id="alex-mode-button">Alex Mode</button>
 
-        <!-- Embedded Leaflet Map -->
-        <h2>Nearby Bars</h2>
-        <div id="map" style="width: 600px; height: 450px;"></div>
+        
     </main>
     <footer>
         <p>&copy; <span id="year"></span> The Beer Decider Project. All rights reserved.</p>
@@ -211,13 +209,7 @@
                 modal.style.display = 'none';
             });
 
-            // Initialize the map
-            const map = L.map('map').setView([51.4416, 5.4697], 13); // Centered on Eindhoven
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
+            
             // Custom icon for bars
             const barIcon = L.icon({
                 iconUrl: 'images/bar-icon.png', // Path to your custom icon image
@@ -241,13 +233,7 @@
                 { name: 'Hubble Bar TU/e', lat: 51.4484, lng: 5.4903 } // Added Hubble Bar TU/e
             ];
 
-            bars.forEach(bar => {
-                console.log(`Adding marker for ${bar.name} at (${bar.lat}, ${bar.lng})`);
-                L.marker([bar.lat, bar.lng], { icon: barIcon }).addTo(map)
-                    .bindPopup(`<b>${bar.name}</b>`)
-                    .openPopup();
-            });
-
+           
             console.log('Map and markers initialized successfully.');
 
             // List of most popular beers in the Netherlands
