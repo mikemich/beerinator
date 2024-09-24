@@ -169,3 +169,11 @@ button:hover {
     background-blend-mode: overlay;
     background-color: rgba(0, 0, 0, 0.5); /* Add a semi-transparent overlay */
 }
+
+#map {
+    width: 100%;
+    height: 400px;
+    margin-top: 20px;
+    position: relative;
+    z-index: 0;
+}
